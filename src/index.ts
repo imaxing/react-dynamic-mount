@@ -39,7 +39,7 @@ export const createDynamicMount: DynamicMountFunction =
     const merged_props = {
       ...defaultProps,
       ...props,
-      open: true,
+      open: false,
       afterClose: () => {
         setTimeout(() => {
           root.unmount()
@@ -70,6 +70,10 @@ export const createDynamicMount: DynamicMountFunction =
     }
 
     root.render(React.createElement(Component as any, merged_props))
+
+    setTimeout(() => {
+      update({ open: true })
+    }, 100)
 
     container.remove()
 
