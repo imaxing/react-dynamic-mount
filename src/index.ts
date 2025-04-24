@@ -38,9 +38,9 @@ export const createDynamicMount: CreateDynamicMount =
       )
     }
 
-    update(props)
+    update()
 
-    setTimeout(() => update({ visible: true }), 100)
+    setTimeout(() => update({ ...props, visible: true }), 100)
 
     return {
       root,
