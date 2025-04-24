@@ -1,74 +1,83 @@
 # react-dynamic-mount
 
-> 一个用于动态挂载 React 组件的工具库。
+A lightweight React component dynamic mounting utility.
 
-## 安装
+- When you need to dynamically create and destroy components like modals and drawers
+- When you need to reuse component mounting logic
 
-```bash
-npm install react-dynamic-mount
-```
-
-## 使用方法
+## Basic Usage
 
 ```tsx
 import createDynamicMount from 'react-dynamic-mount'
+
+// Base Modal.ts
 import { Modal } from 'antd'
 
-// 创建一个动态挂载的 Modal
-const createModal = createDynamicMount({
-  extend: Modal,
+export default function IModal() {
+  // Automatically inject visible state into component
+  // children is <YourComponent />
+  const { visible, children, ...rest } = props
+  return (
+    <Modal {...rest} open={visible}>
+      {children}
+    </Modal>
+  )
+}
+
+// dynamic.ts
+import IModal from 'path/to/IModal'
+export const createModal = createDynamicMount({
+  extend: IModal,
   defaultProps: {
     width: 500,
-    maskClosable: false
+    maskClosable: false,
+    onClosed: () => {
+      window.confirm('Confirm to close ?')
+      // handle close confirm
+    }
   }
 })
 
-// 使用
+import { createModal } from 'path/to/dynamic.ts'
 const instance = createModal({
-  title: '标题',
+  title: 'Title',
+  width: 800, // override default props
   component: <YourComponent />,
-  onCancel: () => {
-    console.log('关闭了')
+  onOk: () => {
+    console.log('callback')
   }
 })
 
-// 更新属性
-instance.update({ title: '新标题' })
-
-// 手动关闭
+// manually close
 instance.close()
 ```
 
 ## API
 
-### createDynamicMount
+#### createDynamicMount
 
-创建一个动态挂载的函数。
+| Parameter    | Description         | Type                | Default |
+| ------------ | ------------------- | ------------------- | ------- |
+| extend       | Component to extend | React.ComponentType | -       |
+| className    | Container class     | string              | -       |
+| defaultProps | Default properties  | object              | {}      |
 
-#### 参数
+#### createDynamicMount Instance Props
+```tsx
+const instance = createModal({
+  component: ReactNode,
+  [key]: any
+})
+```
 
-| 参数名       | 说明             | 类型                    | 必填 | 默认值     |
-| ------------ | ---------------- | ----------------------- | ---- | ---------- |
-| extend       | 要扩展的组件     | React.ComponentType     | 是   | -          |
-| className    | 容器类名         | string                  | 否   | -          |
-| closeHook    | 组件关闭钩子名称 | 'onClose' \| 'onCancel' | 否   | 'onCancel' |
-| defaultProps | 默认属性         | object                  | 否   | {}         |
+| Parameter | Description         | Type      | Default |
+| --------- | ------------------- | --------- | ------- |
+| component | Component to render | ReactNode | -       |
 
-### 返回值
+#### Instance Methods
 
-返回一个函数，该函数接收组件属性并返回一个实例对象：
-
-#### 实例方法
-
-| 方法名 | 说明                  | 参数                    | 返回值 |
-| ------ | --------------------- | ----------------------- | ------ |
-| update | 更新组件属性          | (state: object) => void | -      |
-| close  | 关闭组件              | -                       | -      |
-| root   | React 18 的 Root 实例 | -                       | -      |
-
-## 注意事项
-
-1. 组件会自动挂载到 `document.body` 上
-2. 组件关闭后会自动从 DOM 中移除
-3. 支持 React 18 的 `createRoot` API
-4. 组件会自动处理 `open` 状态
+| Method        | Description            |
+| ------------- | ---------------------- |
+| update(state) | Update component state |
+| close()       | Close component        |
+| root          | React 18 Root instance |

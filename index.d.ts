@@ -1,28 +1,19 @@
 import type { ComponentType, ReactNode, ReactElement } from 'react'
 
-export interface ExtendProps {
-  component?: ReactNode
-  children?: ReactNode
-  onUpdate?: (state: any) => void
-}
-
-export interface CreateDynamicMountOptions<T> {
+export interface Options<T> {
   extend: ComponentType<T>
   defaultProps?: Partial<T>
   className?: string
-  closeHook?: 'onClose' | 'onCancel' | string
 }
 
 export type DynamicMountResult = {
   root: any
   close: () => void
-  update: (state: any) => void
+  update: (state: Record<string, any>) => void
 }
 
-export type DynamicMountFunction = <P>(
-  options: CreateDynamicMountOptions<P>
-) => (props: Partial<P & ExtendProps>) => DynamicMountResult
-
-declare const createDynamicMount: DynamicMountFunction
+declare const createDynamicMount: <P>(
+  options: Options<P>
+) => (props: Partial<P & { component?: ReactNode }>) => DynamicMountResult
 
 export default createDynamicMount
