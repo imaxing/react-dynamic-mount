@@ -1,4 +1,3 @@
-/// <reference path="../index.d.ts" />
 import { createRoot } from 'react-dom/client'
 import React from 'react'
 import type { ComponentType, ReactNode } from 'react'
@@ -26,10 +25,19 @@ export const createDynamicMount: CreateDynamicMount =
 
     const root = createRoot(container)
 
+    const close = () => {
+      update({ visible: false })
+      setTimeout(() => {
+        container.remove()
+        root.unmount()
+      }, 100)
+    }
+
     const update = (state: any = {}) => {
       root.render(
         React.createElement(Component as any, {
           visible: false,
+          onUpdate: update,
           containerEl: container,
           children: props.component,
           ...dps,
@@ -42,17 +50,7 @@ export const createDynamicMount: CreateDynamicMount =
 
     setTimeout(() => update({ ...props, visible: true }), 100)
 
-    return {
-      root,
-      update,
-      close: () => {
-        update({ visible: false })
-        setTimeout(() => {
-          container.remove()
-          root.unmount()
-        }, 100)
-      }
-    }
+    return { root, update, close }
   }
 
 export default createDynamicMount
